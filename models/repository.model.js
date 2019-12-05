@@ -8,16 +8,13 @@ class Repository {
     this.url = url;
   }
 
-  static async getRepositoryById(repoId) {
+  static async getRepositoryById(repositoryId) {
     try {
-      const response = await db.one(
-        `SELECT * FROM repositories WHERE id = $1;`,
-        [repoId]
-      );
-      debug('got repository!', response);
-      return response;
+      const response = await db('repositories').where({id: repositoryId});
+      debug('getRepositoryById(): ', response);
+      return response[0];
     } catch (error) {
-        debug('error!', error.message);
+        debug('error!', error, error.message);
         return error;
     }
   }
@@ -28,6 +25,7 @@ class Repository {
         `SELECT * FROM subscriptions WHERE repo_id = $1;`,
         [repoId]
       );
+    //   const response = await db.select('*').from('subscriptions').join('users', 'subscriptions.user_id', '=', 'users.id')
       debug(`getSubscribers(id: ${repoId})`, response);
       return response;
     } catch (error) {

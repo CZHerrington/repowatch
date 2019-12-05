@@ -1,8 +1,8 @@
-require('dotenv').config();
-const debug = require('debug')('[repowatch:database]');
-const knex = require('knex');
+require("dotenv").config();
+const debug = require("debug")("[repowatch:database]");
+const knex = require("knex");
 
-
+/* ### configuration for pg-promise as postgres interface provider ###
 const options = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -14,25 +14,26 @@ const pgp = require('pg-promise')({
 });
 
 const db = pgp(options);
+**/
 
+const options = {
+  client: "pg",
+  connection: {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME
+  },
+  log: {
+    log: debug,
+    error: debug,
+    warn: debug,
+    debug,
+    debug
+  }
+};
 
-// const options = {
-//     client: 'pg',
-//     connection: {
-//         host: process.env.DB_HOST,
-//         port: process.env.DB_PORT,
-//         database: process.env.DB_NAME
-//     },
-//     log: {
-//         log: debug,
-//         error: debug,
-//         warn: debug,
-//         debug, debug
-//     }
-// };
+const db = knex(options);
 
-// const db = knex(options)
-
-debug('connection successful');
+debug("database connection initialized");
 
 module.exports = db;
