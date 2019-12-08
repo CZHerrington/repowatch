@@ -115,8 +115,7 @@ class Repository {
     }
   }
 
-  async save(columnValueArray) {
-      const values = (columnValueArray) ? columnValueArray.join(" ") : null;
+  async save(values) {
       debug("VALUES ", values)
     try {
       const response = await db("repositories")

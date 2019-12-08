@@ -21,12 +21,37 @@ const octokit = Octokit({
 //   username: "CZHerrington"
 // });
 
+async function getRepoData(ownerName, repoName) {
+  const request = axios(`${githubApiUrl}/repos/${ownerName}/${repoName}`);
+  if (request.statusCode === 403) {
+    throw new Error("Error: need github api authentication!");
+  }
+  return request;
+}
+
 async function getOrgData(orgName) {
   const request = await axios(`https://api.github.com/orgs/${orgName}`);
   if (request.statusCode === 403) {
     throw new Error("Error: need github api authentication!");
   }
   return request;
+}
+
+async function getUserData(userName) {
+    const request = await axios(`https://api.github.com/users/${userName}`);
+    if (request.statusCode === 403) {
+      throw new Error("Error: need github api authentication!");
+    }
+    return request;
+  }
+
+async function getOwnerDataFromRepoData(request) {
+    const { owner } = request.data;
+    if (owner.type === "User") {
+        return getOrgData(owner.login);
+    } else if (owner.type === "Organization") {
+        return getUserData(owner.login);
+    }
 }
 
 async function getAllOrgRepoData(orgName) {
@@ -39,10 +64,12 @@ async function getAllOrgRepoData(orgName) {
 }
 
 function getRepoFromAllRepoData(name, request) {
-    const { data } = request;
-  const repository = data.filter(repo => (repo.name === name));
+    debug("getRepoFromAllRepoData():")
+    debug(name, request.data.map(repo => repo.name))
+  const { data } = request;
+  const repository = data.filter(repo => repo.name === name);
   if (repository === []) {
-      return false;
+    return false;
   }
 
   return repository[0];
@@ -51,6 +78,9 @@ function getRepoFromAllRepoData(name, request) {
 module.exports = {
   octokit,
   getOrgData,
+  getRepoData,
+  getUserData,
+  getOwnerDataFromRepoData,
   getAllOrgRepoData,
   getRepoFromAllRepoData
 };

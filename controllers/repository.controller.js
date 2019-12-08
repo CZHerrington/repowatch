@@ -5,7 +5,10 @@ const Repository = require("../models/repository.model");
 const Owner = require("../models/owner.model");
 const {
   octokit,
+  getUserData,
   getOrgData,
+  getOwnerDataFromRepoData,
+  getRepoData,
   getAllOrgRepoData,
   getRepoFromAllRepoData
 } = require("../utilities/github-api");
@@ -32,10 +35,11 @@ router.get("/:owner_name/:repository_name", async (req, res, next) => {
       const owner = new Owner(
         data.login,
         data.name,
-        data.description,
+        "Organization",
+        data.description || data.bio,
         data.html_url
       );
-      ownerQuery = await owner.save(['*']);
+      ownerQuery = await owner.save('*');
       debug("NEW OWNER: ", ownerQuery);
     }
 
@@ -66,9 +70,9 @@ router.get("/:owner_name/:repository_name", async (req, res, next) => {
         data.description,
         data.html_url,
         data.language,
-        ownerQuery.id
+        ownerQuery.id,
       );
-      repositoryQuery = await repository.save();
+      repositoryQuery = await repository.save('*');
       debug("NEW REPO: ", repositoryQuery)
     }
 

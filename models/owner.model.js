@@ -3,12 +3,12 @@ const debug = require("debug")("[repowatch:model:owner]");
 
 /* obviously rewrite */
 class Owner {
-  constructor(name, displayName, description, url) {
+  constructor(name, displayName, ownerType, description, url) {
     this.name = name;
     this.description = description;
     this.url = url;
-
-    this.displayName = displayName ? displayName : name;
+    this.owner_type = ownerType;
+    this.display_name = displayName ? displayName : name;
   }
 
   static async getOwnerById(ownerId) {
@@ -60,15 +60,16 @@ class Owner {
     }
   }
 
-  async save() {
+  async save(values) {
     try {
       const response = await db("owners")
-        .returning("*")
+        .returning(values)
         .insert({
           name: this.name,
-          display_name: this.displayName,
+          display_name: this.display_name,
+          owner_type: this.owner_type,
           description: this.description,
-          url: this.url
+          url: this.url,
         });
       debug("creating owner: ", response);
       return response[0];
